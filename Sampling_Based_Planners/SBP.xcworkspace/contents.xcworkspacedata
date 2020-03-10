@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:main.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:planner.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:rrt.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:rrt.hpp">
+   </FileRef>
+   <FileRef
+      location = "group:tree.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:tree.hpp">
+   </FileRef>
+</Workspace>
