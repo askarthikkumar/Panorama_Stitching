@@ -7,6 +7,7 @@
 //
 
 #include "rrt.hpp"
+#include "rrt_connect.hpp"
 #include <iostream>
 
 int IsValidArmConfiguration(std::vector<double> angles, 
@@ -17,7 +18,7 @@ int main(int argc, const char * argv[]) {
     
     std::cout << "Hello, World!\n";
     double map[9]={0,0,0,0,0,0,0,0,0};
-    RRT rtree(2,map,3,3);
+    RRTConnect rtree(2,map,3,3);
     double start[2]={0,0}; 
     double goal[2]={2,2}; 
     double** plan = NULL;

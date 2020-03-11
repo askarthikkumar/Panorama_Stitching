@@ -16,12 +16,9 @@
 
 #define PI 3.141592654
 #define LINKLENGTH_CELLS 10
+#define LOGGING 0
 
-std::ofstream nodes("nodes.txt");
-std::ofstream path("path.txt");
-std::ofstream joints("joints.txt");
-
-std::vector<double> RRT::forward_kinematics(Point angles){
+std::vector<double> RRT::forward_kinematics(const Point& angles){
     double x0,y0,x1,y1;
         int i;
         //iterate through all the links starting with the base
@@ -40,6 +37,8 @@ std::vector<double> RRT::forward_kinematics(Point angles){
 
 template<typename T>
 void log(std::vector<T> pt, std::ofstream& ofs){
+    if(LOGGING==0)
+        return;
     for(int i=0; i<pt.size(); i++)
         ofs<<pt[i]<<" ";
     ofs<<std::endl;
@@ -91,6 +90,9 @@ RRT::RRT(unsigned D, double* map, int x_size, int y_size):Tree(D){
     //debug variable initialisations
     this->min_dist=1000000;
     this->min_ee_dist=1000000;
+    this->nodes=std::ofstream("nodes.txt");
+    this->path=std::ofstream("path.txt");
+    this->joints=std::ofstream("joints.txt");
 }
 
 bool RRT::present(const Point &pt){
@@ -134,9 +136,8 @@ std::pair<Point,int> RRT::new_config(const Point& q_near, const Point& q){
     dist=dist<this->ext_eps?dist:ext_eps;
     int no_samples = (int)(this->sf);
     double step_dist = dist/no_samples;
-    int prev=0, break_flg=0;
-    for(int i=0; i<no_samples; i++){
-        prev=i;
+    int prev=0, break_flg=0,i=0;
+    for(i=0; i<no_samples; i++){
         q_sampled = q_near+step_dist*i*unit_vec;
         if(!IsValidArmConfiguration(q_sampled, this->D, this->map, 
                 this->x_size, this->y_size)){
@@ -144,17 +145,22 @@ std::pair<Point,int> RRT::new_config(const Point& q_near, const Point& q){
                 break;
         }
     }
-    if(prev==1||prev==0){//trapped
+    if(i==1||i==0){//trapped
         // if(IsValidArmConfiguration(q_sampled, this->D, this->map, this->x_size, this->y_size))
-        if(prev==0 && break_flg==1){
+        if(i==0 && break_flg==1){
             std::cout<<"False Trap"<<std::endl;
+            std::cout<<IsValidArmConfiguration(q_sampled, this->D, this->map, 
+                this->x_size, this->y_size)<<" q_near\n";
+            // std::cout<<q_sampled<<std::endl;
+            std::cout<<q_near<<std::endl;
+            std::cout<<q<<std::endl;
         }
         return {q_sampled,0};
     }
     //advanced or reached
     if(break_flg){
         //advanced but did not reach destination
-        Point res=q_near+step_dist*(prev-1)*unit_vec;
+        Point res=q_near+step_dist*(i-1)*unit_vec;
         // std::cout<<"Brk "<<IsValidArmConfiguration(res, this->D, this->map, 
             // this->x_size, this->y_size)<<std::endl;
         if(!IsValidArmConfiguration(res, this->D, this->map, 
@@ -269,6 +275,7 @@ void RRT::plan(double* start,
             double* goal, 
             double*** plan, 
             int* planlength){
+
     Point q_near;
     int signal;
     // Seeds which work: (seed=10,eps_th=0.5,explt_th=0.15)

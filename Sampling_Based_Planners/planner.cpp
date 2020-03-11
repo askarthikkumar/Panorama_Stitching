@@ -6,6 +6,7 @@
 #include <math.h>
 #include "mex.h"
 #include "rrt.hpp"
+#include "rrt_connect.hpp"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -357,9 +358,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
 	//you can may be call the corresponding planner function here
 	if (planner_id == RRT_ID)
 	{
-        RRT rrt_planner(numofDOFs,map,x_size,y_size);
-        rrt_planner.plan(armstart_anglesV_rad,armgoal_anglesV_rad,&plan, &planlength);
-//        plannerRRT(map,x_size,y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, &plan, &planlength);
+        RRT planner(numofDOFs,map,x_size,y_size);
+        planner.plan(armstart_anglesV_rad,armgoal_anglesV_rad,&plan, &planlength);
+	}
+	else if (planner_id == RRTCONNECT_ID)
+	{
+        RRTConnect planner(numofDOFs,map,x_size,y_size);
+        planner.plan(armstart_anglesV_rad,armgoal_anglesV_rad,&plan, &planlength);
 	}
 	
 	//dummy planner which only computes interpolated path

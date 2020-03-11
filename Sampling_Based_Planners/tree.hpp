@@ -11,7 +11,7 @@
 #include <stdio.h>
 // just for output
 #include <iostream>
-
+#include <fstream>
 // stl containers
 #include <unordered_map>
 #include <vector>
