@@ -84,8 +84,8 @@ RRT::RRT(unsigned D, double* map, int x_size, int y_size):Tree(D){
     this->map=map;
     this->x_size=x_size;
     this->y_size=y_size;
-    this->episodes=1000000;
-    this->term_th=0.1;
+    this->episodes=30000;
+    this->term_th=0.01;
     this->is_terminal=false;
     this->exploit_th=0.15;
     //debug variable initialisations
@@ -139,12 +139,16 @@ std::pair<Point,int> RRT::new_config(const Point& q_near, const Point& q){
         prev=i;
         q_sampled = q_near+step_dist*i*unit_vec;
         if(!IsValidArmConfiguration(q_sampled, this->D, this->map, 
-            this->x_size, this->y_size)){
+                this->x_size, this->y_size)){
                 break_flg=1;
                 break;
         }
     }
     if(prev==1||prev==0){//trapped
+        // if(IsValidArmConfiguration(q_sampled, this->D, this->map, this->x_size, this->y_size))
+        if(prev==0 && break_flg==1){
+            std::cout<<"False Trap"<<std::endl;
+        }
         return {q_sampled,0};
     }
     //advanced or reached
@@ -153,6 +157,10 @@ std::pair<Point,int> RRT::new_config(const Point& q_near, const Point& q){
         Point res=q_near+step_dist*(prev-1)*unit_vec;
         // std::cout<<"Brk "<<IsValidArmConfiguration(res, this->D, this->map, 
             // this->x_size, this->y_size)<<std::endl;
+        if(!IsValidArmConfiguration(res, this->D, this->map, 
+            this->x_size, this->y_size)){
+                std::cout<<"Invalid config advanced partially\n";
+        }
         return {res,1};
     }
     else{
@@ -160,12 +168,20 @@ std::pair<Point,int> RRT::new_config(const Point& q_near, const Point& q){
         if(reachable_flg){
             // std::cout<<"reachable "<<IsValidArmConfiguration(q, this->D, this->map, 
             // this->x_size, this->y_size)<<std::endl;
-            return {q,2};
+            if(!IsValidArmConfiguration(q_sampled, this->D, this->map, 
+            this->x_size, this->y_size)){
+                std::cout<<"Invalid config reached\n";
+            }
+            return {q_sampled,2};
         }
         else{
             // Point res=q_near+this->ext_eps*(q-q_near);
             // std::cout<<"Adv "<<IsValidArmConfiguration(q_sampled, this->D, this->map, 
             // this->x_size, this->y_size)<<std::endl;
+            if(!IsValidArmConfiguration(q_sampled, this->D, this->map, 
+            this->x_size, this->y_size)){
+                std::cout<<"Invalid config advanced fully\n";
+            }
             return {q_sampled,1};
         }
     }
@@ -178,7 +194,6 @@ int RRT::extend(const Point &q){
         q_near = result[0]->point;
     auto signal = this->new_config(q_near, q);
     if(signal.second==0){
-        // std::cout<<"Trapped "<<this->forward_kinematics(signal.first)<<std::endl;
         return 0;
     }
     else{
@@ -197,9 +212,13 @@ int RRT::extend(const Point &q){
         */
         if(cur_dist<this->term_th){
             this->is_terminal=true;
-            this->terminal_id=result[0]->id;
+            std::cout<<"Closest Distance is "<<cur_dist<<std::endl;
+            std::cout<<signal.first<<std::endl;
         }
+
         NodeId cur_id=this->insert(signal.first,result[0]->id);
+        this->terminal_id=cur_id;
+
         if(cur_dist<this->min_dist){
             this->min_dist=cur_dist;
             this->closest_id=cur_id;
@@ -216,7 +235,7 @@ void RRT::backtrack(double*** plan, int* planlength){
     std::vector<NodeId> result;
     NodeId cur=this->terminal_id;
     while(cur!=0){
-        std::cout<<cur<<std::endl;
+        std::cout<<this->node_list[cur]->point<<std::endl;
         result.push_back(cur);
         cur=this->parent_map[cur];
     }
@@ -253,7 +272,7 @@ void RRT::plan(double* start,
     Point q_near;
     int signal;
     // Seeds which work: (seed=10,eps_th=0.5,explt_th=0.15)
-    unsigned seed=23,exp_seed=1;
+    unsigned seed=0,exp_seed=0;
     std::default_random_engine eng(seed);
     std::default_random_engine exp_eng(exp_seed);
     std::uniform_real_distribution<double> u_dist(0,2*PI);
@@ -269,10 +288,11 @@ void RRT::plan(double* start,
     for(int i=0; i<this->episodes; i++){
         if(!this->is_terminal){
             Point q_rand(this->D);
-            double scale=(double)i/30000;
+            // double scale=(double)i/this->episodes;
             // double th=((int)(scale*10)%10)/10.0;
-            double th=0.1;
-            if(explt(exp_eng)>th){
+            // double th=0.1;
+            // if(scale>0.9)th=1;
+            if(explt(exp_eng)>this->exploit_th){
                 for(int i=0; i<this->D; i++)q_rand[i]=u_dist(eng);
             }
             else{
@@ -289,7 +309,7 @@ void RRT::plan(double* start,
         if(i%1000==0){
             std::cout<<i<<" Nodes sampled\n";
             std::cout<<"Minimum distance till now is "<<this->min_dist<<std::endl;
-            if(i==30000){
+            if(i==this->episodes){
                 std::cout<<"No path found after sampling "<<i<<" nodes\n";
                 break;
             }

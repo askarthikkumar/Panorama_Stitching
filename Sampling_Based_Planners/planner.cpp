@@ -224,6 +224,7 @@ int IsValidArmConfiguration(double* angles, int numofDOFs, double*    map,
 {
     double x0,y0,x1,y1;
     int i;
+	std::cout<<"Here\n";
     //iterate through all the links starting with the base
     x1 = ((double)x_size)/2.0;
     y1 = 0;
