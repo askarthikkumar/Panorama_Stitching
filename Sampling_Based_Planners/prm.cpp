@@ -1,4 +1,4 @@
-#include "rrt.hpp"
+#include "prm.hpp"
 #include <fstream>
 #include <math.h>
 
@@ -18,7 +18,7 @@
 #define LINKLENGTH_CELLS 10
 #define LOGGING 0
 
-std::vector<double> RRT::forward_kinematics(const Point& angles){
+std::vector<double> PRM::forward_kinematics(const Point& angles){
     double x0,y0,x1,y1;
         int i;
         //iterate through all the links starting with the base
@@ -77,16 +77,14 @@ Point operator * (double k, Point A){
     return res;
 }
 
-RRT::RRT(unsigned D, double* map, int x_size, int y_size):Tree(D){
+PRM::PRM(unsigned D, double* map, int x_size, int y_size):Tree(D){
     this->ext_eps=0.5;
-    this->sf=0.01;
+    this->sf=20.0;
     this->map=map;
     this->x_size=x_size;
     this->y_size=y_size;
     this->episodes=30000;
-    this->term_th=0.01;
     this->is_terminal=false;
-    this->exploit_th=0.15;
     //debug variable initialisations
     this->min_dist=1000000;
     this->min_ee_dist=1000000;
@@ -95,7 +93,7 @@ RRT::RRT(unsigned D, double* map, int x_size, int y_size):Tree(D){
     this->joints=std::ofstream("joints.txt");
 }
 
-bool RRT::present(const Point &pt){
+bool PRM::present(const Point &pt){
     for(auto& item:this->node_list){
         if(item.second->point==pt)
             return true;
@@ -103,7 +101,7 @@ bool RRT::present(const Point &pt){
     return false;
 }
 
-NodeId RRT::insert(const Point &pt, NodeId parent){
+NodeId PRM::insert(const Point &pt, NodeId parent){
     if(this->present(pt)){
         // std::cout<<"Already present\n";
         return 0;
@@ -129,15 +127,14 @@ NodeId RRT::insert(const Point &pt, NodeId parent){
     return this->counter;
 }
 
-std::pair<Point,int> RRT::new_config(const Point& q_near, const Point& q){
+std::pair<Point,int> PRM::new_config(const Point& q_near, const Point& q){
     double dist=distance(q_near, q);
     Point unit_vec=(1/dist)*(q-q_near),q_sampled;
     int reachable_flg=dist<this->ext_eps?1:0;
-    dist=dist<this->ext_eps?dist:this->ext_eps;
-    int no_samples = dist/(this->sf);
-    double step_dist = this->sf;
+    dist=dist<this->ext_eps?dist:ext_eps;
+    int no_samples = (int)(this->sf);
+    double step_dist = dist/no_samples;
     int prev=0, break_flg=0,i=0;
-    // std::cout<<"No of samples is "<<no_samples<<std::endl;
     for(i=0; i<no_samples; i++){
         q_sampled = q_near+step_dist*i*unit_vec;
         if(!IsValidArmConfiguration(q_sampled, this->D, this->map, 
@@ -194,7 +191,7 @@ std::pair<Point,int> RRT::new_config(const Point& q_near, const Point& q){
     }
 }
 
-int RRT::extend(const Point &q){
+int PRM::extend(const Point &q){
     auto result=this->get_nearest_nodes(q);
     Point q_near;
     if(!result.empty())
@@ -236,7 +233,7 @@ int RRT::extend(const Point &q){
     }
 }
 
-void RRT::backtrack(double*** plan, int* planlength){
+void PRM::backtrack(double*** plan, int* planlength){
     *plan = NULL;
     *planlength = 0;
     std::vector<NodeId> result;
@@ -268,11 +265,11 @@ void RRT::backtrack(double*** plan, int* planlength){
     return;
 }
 
-void RRT::random_config(Point& q_rand, std::default_random_engine eng){
+void PRM::random_config(Point& q_rand, std::default_random_engine eng){
     return;
 }
 
-void RRT::plan(double* start, 
+void PRM::plan(double* start, 
             double* goal, 
             double*** plan, 
             int* planlength){

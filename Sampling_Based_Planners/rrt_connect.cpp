@@ -40,7 +40,7 @@ RRTConnect::RRTConnect(unsigned D, double* map, int x_size, int y_size){
     this->tree_st=new RRT(D, map, x_size, y_size);
     this->tree_gl=new RRT(D, map, x_size, y_size);
     this->tree_st->ext_eps=this->tree_gl->ext_eps=this->ext_eps=0.5;
-    this->tree_st->sf=this->tree_gl->sf=this->sf=20.0;
+    this->tree_st->sf=this->tree_gl->sf=this->sf=0.001;
     this->tree_st->episodes=this->tree_gl->episodes=this->episodes=20000;
     this->tree_st->term_th=this->tree_gl->term_th=this->term_th=0.01;
     this->map=map;
@@ -52,6 +52,7 @@ RRTConnect::RRTConnect(unsigned D, double* map, int x_size, int y_size){
     this->nodes=std::ofstream("nodes.txt");
     this->path=std::ofstream("path.txt");
     this->joints=std::ofstream("joints.txt");
+    std::cout<<"Sampling interval is "<<this->sf<<std::endl;
 }
 
 int RRTConnect::connect(Node* node, RRT* tree){
@@ -82,9 +83,10 @@ void RRTConnect::backtrack(double*** plan, int* planlength){
     std::cout<<"goal traj\n";
     cur=this->terminal_id_gl;
     while(cur!=0){
+        std::cout<<cur<<std::endl;
         std::cout<<this->tree_gl->node_list[cur]->point<<std::endl;
         result_gl.push_back(cur);
-        cur=this->tree_st->parent_map[cur];
+        cur=this->tree_gl->parent_map[cur];
     }
     int num_samples=(int)result_st.size()+(int)result_gl.size();
     *plan = (double**) malloc(num_samples*sizeof(double*));
@@ -137,18 +139,25 @@ void RRTConnect::plan(double* start,
     // Initialize
     this->tree_st->insert(Point(start,start+(int)this->D));
     this->tree_gl->insert(Point(goal,goal+(int)this->D));
+    // Set start and goals for tree_st
     this->tree_st->start=Point(start,start+(int)this->D);
     this->tree_st->end=Point(goal,goal+(int)this->D);
+    // Set start and goals for tree_gl
     this->tree_gl->start=Point(goal,goal+(int)this->D);
     this->tree_gl->end=Point(start,start+(int)this->D);
+    //Initialise pointers
     RRT *tree_a=this->tree_st, *tree_b=this->tree_gl, *temp=NULL;
     // Run for fixed number of episodes
     for(int i=0; i<this->episodes; i++){
+        // if(i%2==0)
+            // std::cout<<"Extending Tree St\n";
+        // else
+            // std::cout<<"Extending Tree Gl\n";
         Point q_rand(this->D);
         if(explt(exp_eng)>this->exploit_th){
             for(int i=0; i<this->D; i++)q_rand[i]=u_dist(eng);
         }
-        else{
+        else{ // exploit
             q_rand=tree_a->end;
         }
         signal=tree_a->extend(q_rand);
@@ -157,10 +166,12 @@ void RRTConnect::plan(double* start,
             if(connect_sig){
                 this->is_terminal=1;
                 if(tree_a==this->tree_st){
+                    // std::cout<<"Connected Tree St to Tree Gl \n";
                     this->terminal_id_st=tree_a->counter;
                     this->terminal_id_gl=tree_b->counter;
                 }
                 else{
+                    // std::cout<<"Connected Tree Gl to Tree St \n";
                     this->terminal_id_st=tree_b->counter;
                     this->terminal_id_gl=tree_a->counter;
                 }
