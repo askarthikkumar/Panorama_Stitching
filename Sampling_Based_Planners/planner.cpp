@@ -8,6 +8,7 @@
 #include "rrt.hpp"
 #include "rrt_connect.hpp"
 #include "prm.hpp"
+#include "rrt_star.hpp"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -372,7 +373,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
         PRM planner(numofDOFs,map,x_size,y_size);
         planner.plan(armstart_anglesV_rad,armgoal_anglesV_rad,&plan, &planlength);
     }
-	
+	else if (planner_id == RRTSTAR_ID)
+    {
+        RRTStar planner(numofDOFs,map,x_size,y_size);
+        planner.plan(armstart_anglesV_rad,armgoal_anglesV_rad,&plan, &planlength);
+    }
 	//dummy planner which only computes interpolated path
 	// planner(map,x_size,y_size, armstart_anglesV_rad, armgoal_anglesV_rad, numofDOFs, &plan, &planlength); 
 	
