@@ -1,0 +1,285 @@
+{
+    "extension": "linecount",
+    "version": "0.1.7",
+    "workspace": "/Users/stark/Projects/Sampling_Based_Planners",
+    "linecount": [
+        {
+            "version": "0.1.7",
+            "counttime": "2020-03-14 15:41:18",
+            "filesum": 44,
+            "codesum": 3426,
+            "commentsum": 397,
+            "blanksum": 224,
+            "filelist": [
+                {
+                    "blank": 1,
+                    "code": 2,
+                    "comment": 1,
+                    "filename": "armplanner.m"
+                },
+                {
+                    "blank": 0,
+                    "code": 2,
+                    "comment": 0,
+                    "filename": "examplestartgoal.txt"
+                },
+                {
+                    "blank": 2,
+                    "code": 156,
+                    "comment": 129,
+                    "filename": "HW2_v0.pdf"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "joints.txt"
+                },
+                {
+                    "blank": 3,
+                    "code": 18,
+                    "comment": 12,
+                    "filename": "main.cpp"
+                },
+                {
+                    "blank": 0,
+                    "code": 50,
+                    "comment": 0,
+                    "filename": "map1.txt"
+                },
+                {
+                    "blank": 0,
+                    "code": 50,
+                    "comment": 0,
+                    "filename": "map2.txt"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "nodes.txt"
+                },
+                {
+                    "blank": 0,
+                    "code": 542,
+                    "comment": 0,
+                    "filename": "output.txt"
+                },
+                {
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0,
+                    "filename": "path.txt"
+                },
+                {
+                    "blank": 59,
+                    "code": 293,
+                    "comment": 61,
+                    "filename": "planner.cpp"
+                },
+                {
+                    "filename": "planner.mexmaci64",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 29,
+                    "code": 209,
+                    "comment": 13,
+                    "filename": "prm.cpp"
+                },
+                {
+                    "blank": 1,
+                    "code": 31,
+                    "comment": 1,
+                    "filename": "prm.hpp"
+                },
+                {
+                    "blank": 26,
+                    "code": 268,
+                    "comment": 48,
+                    "filename": "rrt.cpp"
+                },
+                {
+                    "blank": 1,
+                    "code": 25,
+                    "comment": 1,
+                    "filename": "rrt.hpp"
+                },
+                {
+                    "blank": 10,
+                    "code": 259,
+                    "comment": 21,
+                    "filename": "RRT/RRT.xcodeproj/project.pbxproj"
+                },
+                {
+                    "blank": 0,
+                    "code": 7,
+                    "comment": 0,
+                    "filename": "RRT/RRT.xcodeproj/project.xcworkspace/contents.xcworkspacedata"
+                },
+                {
+                    "blank": 0,
+                    "code": 8,
+                    "comment": 0,
+                    "filename": "RRT/RRT.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist"
+                },
+                {
+                    "filename": "RRT/RRT.xcodeproj/project.xcworkspace/xcuserdata/stark.xcuserdatad/UserInterfaceState.xcuserstate",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 216,
+                    "comment": 0,
+                    "filename": "RRT/RRT.xcodeproj/xcuserdata/stark.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist"
+                },
+                {
+                    "blank": 0,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "RRT/RRT.xcodeproj/xcuserdata/stark.xcuserdatad/xcschemes/xcschememanagement.plist"
+                },
+                {
+                    "blank": 13,
+                    "code": 172,
+                    "comment": 19,
+                    "filename": "rrt_connect.cpp"
+                },
+                {
+                    "blank": 2,
+                    "code": 23,
+                    "comment": 1,
+                    "filename": "rrt_connect.hpp"
+                },
+                {
+                    "blank": 5,
+                    "code": 18,
+                    "comment": 4,
+                    "filename": "runtest.m"
+                },
+                {
+                    "blank": 10,
+                    "code": 255,
+                    "comment": 21,
+                    "filename": "SBM/SBM.xcodeproj/project.pbxproj"
+                },
+                {
+                    "blank": 0,
+                    "code": 7,
+                    "comment": 0,
+                    "filename": "SBM/SBM.xcodeproj/project.xcworkspace/contents.xcworkspacedata"
+                },
+                {
+                    "blank": 0,
+                    "code": 8,
+                    "comment": 0,
+                    "filename": "SBM/SBM.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist"
+                },
+                {
+                    "filename": "SBM/SBM.xcodeproj/project.xcworkspace/xcuserdata/stark.xcuserdatad/UserInterfaceState.xcuserstate",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 78,
+                    "comment": 0,
+                    "filename": "SBM/SBM.xcodeproj/xcshareddata/xcschemes/SBM.xcscheme"
+                },
+                {
+                    "blank": 0,
+                    "code": 168,
+                    "comment": 0,
+                    "filename": "SBM/SBM.xcodeproj/xcuserdata/stark.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist"
+                },
+                {
+                    "blank": 0,
+                    "code": 22,
+                    "comment": 0,
+                    "filename": "SBM/SBM.xcodeproj/xcuserdata/stark.xcuserdatad/xcschemes/xcschememanagement.plist"
+                },
+                {
+                    "blank": 17,
+                    "code": 177,
+                    "comment": 26,
+                    "filename": "SBM/SBM/kdtree.cpp"
+                },
+                {
+                    "blank": 1,
+                    "code": 1,
+                    "comment": 7,
+                    "filename": "SBM/SBM/Tree.cpp"
+                },
+                {
+                    "blank": 17,
+                    "code": 94,
+                    "comment": 13,
+                    "filename": "SBM/SBM/Tree.hpp"
+                },
+                {
+                    "blank": 0,
+                    "code": 22,
+                    "comment": 0,
+                    "filename": "SBP.xcworkspace/contents.xcworkspacedata"
+                },
+                {
+                    "blank": 0,
+                    "code": 8,
+                    "comment": 0,
+                    "filename": "SBP.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist"
+                },
+                {
+                    "blank": 0,
+                    "code": 46,
+                    "comment": 0,
+                    "filename": "SBP.xcworkspace/xcshareddata/xcschemes/debug.xcscheme"
+                },
+                {
+                    "filename": "SBP.xcworkspace/xcuserdata/stark.xcuserdatad/UserInterfaceState.xcuserstate",
+                    "isbinaryfile": true,
+                    "blank": 0,
+                    "code": 0,
+                    "comment": 0
+                },
+                {
+                    "blank": 0,
+                    "code": 29,
+                    "comment": 0,
+                    "filename": "SBP.xcworkspace/xcuserdata/stark.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist"
+                },
+                {
+                    "blank": 0,
+                    "code": 14,
+                    "comment": 0,
+                    "filename": "SBP.xcworkspace/xcuserdata/stark.xcuserdatad/xcschemes/xcschememanagement.plist"
+                },
+                {
+                    "blank": 1,
+                    "code": 14,
+                    "comment": 2,
+                    "filename": "test.py"
+                },
+                {
+                    "blank": 13,
+                    "code": 72,
+                    "comment": 8,
+                    "filename": "tree.cpp"
+                },
+                {
+                    "blank": 13,
+                    "code": 48,
+                    "comment": 9,
+                    "filename": "tree.hpp"
+                }
+            ]
+        }
+    ]
+}

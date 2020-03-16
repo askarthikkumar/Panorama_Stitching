@@ -83,7 +83,7 @@ void RRTConnect::backtrack(double*** plan, int* planlength){
     std::cout<<"goal traj\n";
     cur=this->terminal_id_gl;
     while(cur!=0){
-        std::cout<<cur<<std::endl;
+        // std::cout<<cur<<std::endl;
         std::cout<<this->tree_gl->node_list[cur]->point<<std::endl;
         result_gl.push_back(cur);
         cur=this->tree_gl->parent_map[cur];
@@ -155,7 +155,7 @@ void RRTConnect::plan(double* start,
             // std::cout<<"Extending Tree Gl\n";
         Point q_rand(this->D);
         if(explt(exp_eng)>this->exploit_th){
-            for(int i=0; i<this->D; i++)q_rand[i]=u_dist(eng);
+            for(int j=0; j<this->D; j++)q_rand[j]=u_dist(eng);
         }
         else{ // exploit
             q_rand=tree_a->end;

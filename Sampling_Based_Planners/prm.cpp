@@ -1,6 +1,7 @@
 #include "prm.hpp"
 #include <fstream>
 #include <math.h>
+#include <queue>
 
 #if !defined(GETMAPINDEX)
 #define GETMAPINDEX(X, Y, XSIZE, YSIZE) (Y*XSIZE + X)
@@ -17,6 +18,20 @@
 #define PI 3.141592654
 #define LINKLENGTH_CELLS 10
 #define LOGGING 0
+
+namespace prm{
+    class Comp{
+        public:
+        bool operator() (Node* A, Node* B) const{
+            //min_heap
+            return static_cast<PRMNode*>(A)->cost < static_cast<PRMNode*>(B)->cost;
+        }
+    };
+}
+
+PRMNode::PRMNode(Point point, NodeId id):Node(point,id){
+    this->cost=1e5;
+}
 
 std::vector<double> PRM::forward_kinematics(const Point& angles){
     double x0,y0,x1,y1;
@@ -56,21 +71,21 @@ std::ostream& operator << (std::ostream& os, std::vector<T> list){
     return os;
 }
 
-Point operator + (Point A, Point B){
+static Point operator + (Point A, Point B){
     Point res(A.size());
     for(int i=0; i<A.size(); i++)
         res[i]=A[i]+B[i];
     return res;
 }
 
-Point operator - (Point A, Point B){
+static Point operator - (Point A, Point B){
     Point res(A.size());
     for(int i=0; i<A.size(); i++)
         res[i]=A[i]-B[i];
     return res;
 }
 
-Point operator * (double k, Point A){
+static Point operator * (double k, Point A){
     Point res(A.size());
     for(int i=0; i<A.size(); i++)
         res[i]=k*A[i];
@@ -78,8 +93,7 @@ Point operator * (double k, Point A){
 }
 
 PRM::PRM(unsigned D, double* map, int x_size, int y_size):Tree(D){
-    this->ext_eps=0.5;
-    this->sf=20.0;
+    this->sf=0.1;
     this->map=map;
     this->x_size=x_size;
     this->y_size=y_size;
@@ -91,6 +105,7 @@ PRM::PRM(unsigned D, double* map, int x_size, int y_size):Tree(D){
     this->nodes=std::ofstream("nodes.txt");
     this->path=std::ofstream("path.txt");
     this->joints=std::ofstream("joints.txt");
+    this->K=4;
 }
 
 bool PRM::present(const Point &pt){
@@ -101,24 +116,14 @@ bool PRM::present(const Point &pt){
     return false;
 }
 
-NodeId PRM::insert(const Point &pt, NodeId parent){
+
+NodeId PRM::insert(const Point &pt, NodeId adj_pt_id){
     if(this->present(pt)){
         // std::cout<<"Already present\n";
         return 0;
     }
-    if(this->counter==0){
-        ++this->counter;
-        this->node_list[counter]=new Node(pt,counter);
-        this->parent_map[counter]=0;
-    }
-    else{
-        ++this->counter;
-        // auto result=this->get_nearest_nodes(pt);
-        // NodeId parent = result[0]->id;
-        this->node_list[this->counter]=new Node(pt,this->counter);
-        // std::cout<<"Parent of "<<counter<<"is "<<parent<<std::endl;
-        this->parent_map[this->counter]=parent;
-    }
+    ++this->counter;
+    this->node_list[this->counter]=new PRMNode(pt,this->counter);
     // debug
     auto coord=this->forward_kinematics(pt);
     log(coord,nodes);
@@ -127,15 +132,20 @@ NodeId PRM::insert(const Point &pt, NodeId parent){
     return this->counter;
 }
 
-std::pair<Point,int> PRM::new_config(const Point& q_near, const Point& q){
+void PRM::connect(const Point &pt, NodeId adj_pt_id, NodeId cur_id){
+    PRMNode* cur_cast=static_cast<PRMNode*>(this->node_list[cur_id]);
+    PRMNode* adj_cast=static_cast<PRMNode*>(this->node_list[adj_pt_id]);
+    cur_cast->adj_list.push_back(node_list[adj_pt_id]);
+    adj_cast->adj_list.push_back(node_list[cur_id]);
+}
+
+bool PRM::new_config(const Point& q_near, const Point& q){
     double dist=distance(q_near, q);
     Point unit_vec=(1/dist)*(q-q_near),q_sampled;
-    int reachable_flg=dist<this->ext_eps?1:0;
-    dist=dist<this->ext_eps?dist:ext_eps;
-    int no_samples = (int)(this->sf);
-    double step_dist = dist/no_samples;
-    int prev=0, break_flg=0,i=0;
-    for(i=0; i<no_samples; i++){
+    int no_samples = dist/(this->sf);
+    double step_dist = this->sf;
+    int break_flg=0,i=0;
+    for(i=0; i<=no_samples; i++){
         q_sampled = q_near+step_dist*i*unit_vec;
         if(!IsValidArmConfiguration(q_sampled, this->D, this->map, 
                 this->x_size, this->y_size)){
@@ -143,106 +153,89 @@ std::pair<Point,int> PRM::new_config(const Point& q_near, const Point& q){
                 break;
         }
     }
-    if(i==1||i==0){//trapped
-        // if(IsValidArmConfiguration(q_sampled, this->D, this->map, this->x_size, this->y_size))
-        if(i==0 && break_flg==1){
-            std::cout<<"False Trap"<<std::endl;
-            std::cout<<IsValidArmConfiguration(q_sampled, this->D, this->map, 
-                this->x_size, this->y_size)<<" q_near\n";
-            // std::cout<<q_sampled<<std::endl;
-            std::cout<<q_near<<std::endl;
-            std::cout<<q<<std::endl;
-        }
-        return {q_sampled,0};
-    }
+
     //advanced or reached
-    if(break_flg){
-        //advanced but did not reach destination
-        Point res=q_near+step_dist*(i-1)*unit_vec;
-        // std::cout<<"Brk "<<IsValidArmConfiguration(res, this->D, this->map, 
-            // this->x_size, this->y_size)<<std::endl;
-        if(!IsValidArmConfiguration(res, this->D, this->map, 
-            this->x_size, this->y_size)){
-                std::cout<<"Invalid config advanced partially\n";
+    if(!break_flg && i!=0){
+        if(!IsValidArmConfiguration(q, this->D, this->map,
+        this->x_size, this->y_size)){
+            std::cout<<"Invalid config advanced fully "<<i<<" "<<no_samples<<std::endl;
         }
-        return {res,1};
+        return true;
     }
     else{
-        //for loop completed so completely advanced
-        if(reachable_flg){
-            // std::cout<<"reachable "<<IsValidArmConfiguration(q, this->D, this->map, 
-            // this->x_size, this->y_size)<<std::endl;
-            if(!IsValidArmConfiguration(q_sampled, this->D, this->map, 
-            this->x_size, this->y_size)){
-                std::cout<<"Invalid config reached\n";
-            }
-            return {q_sampled,2};
-        }
-        else{
-            // Point res=q_near+this->ext_eps*(q-q_near);
-            // std::cout<<"Adv "<<IsValidArmConfiguration(q_sampled, this->D, this->map, 
-            // this->x_size, this->y_size)<<std::endl;
-            if(!IsValidArmConfiguration(q_sampled, this->D, this->map, 
-            this->x_size, this->y_size)){
-                std::cout<<"Invalid config advanced fully\n";
-            }
-            return {q_sampled,1};
-        }
+        return false;
     }
 }
 
 int PRM::extend(const Point &q){
-    auto result=this->get_nearest_nodes(q);
-    Point q_near;
-    if(!result.empty())
-        q_near = result[0]->point;
-    auto signal = this->new_config(q_near, q);
-    if(signal.second==0){
-        return 0;
+    auto result=this->get_nearest_nodes(q, this->K);
+    int flag=0;
+    auto cur_id=this->insert(q,0);
+    if(cur_id!=0){
+        for(auto& item: result){
+            auto signal = this->new_config(item->point, q);
+            if(signal){
+                flag=1;
+                this->connect(q, item->id, cur_id);
+            }
+        }
     }
-    else{
-        //debug statements
-        double cur_dist=distance(signal.first, this->end);
-        /*
-        auto coord=this->forward_kinematics(signal.first);
-        double cur_ee_dist=distance(coord, this->forward_kinematics(this->end));
-        if(cur_ee_dist<this->min_ee_dist){
-            this->min_ee_dist=cur_ee_dist;
-            // std::cout<<"Close to Goal EE \n";
-            // std::cout<<signal.first<<std::endl;
-            // std::cout<<coord<<std::endl;
-            // std::cout<<"Min Dist is "<<cur_dist<<std::endl;
-        }
-        */
-        if(cur_dist<this->term_th){
-            this->is_terminal=true;
-            std::cout<<"Closest Distance is "<<cur_dist<<std::endl;
-            std::cout<<signal.first<<std::endl;
-        }
+    return flag;
+}
 
-        NodeId cur_id=this->insert(signal.first,result[0]->id);
-        this->terminal_id=cur_id;
-
-        if(cur_dist<this->min_dist){
-            this->min_dist=cur_dist;
-            this->closest_id=cur_id;
-            // std::cout<<"New config closer\n";
-            // std::cout<<signal.first<<std::endl;
+void PRM::dijkstra(int start, int end, std::vector<NodeId>& result){
+    std::priority_queue<Node*,std::vector<Node*>, prm::Comp> pq;
+    static_cast<PRMNode*>(this->node_list[start])->cost=0;
+    this->parent_map[start]=0;
+    pq.push(this->node_list[start]);
+    std::unordered_map<NodeId,bool> visited;
+    std::cout<<"Visited end value "<<visited[end]<<std::endl;
+    std::cout<<"End "<<end<<" "<<this->node_list[end]->point<<std::endl;
+    std::cout<<"Start "<<start<<" "<<this->node_list[start]->point<<std::endl;
+    while(!pq.empty()&&!visited[end]){
+        auto cur=pq.top();
+        auto cur_cast=static_cast<PRMNode*>(cur);
+        pq.pop();
+        if(visited[cur->id]){
+            // std::cout<<"Visited\n";
+            continue;
         }
-        return signal.second;
+        // std::cout<<"Visited "<<cur->id<<std::endl;
+        visited[cur->id]=true;
+        // std::cout<<"Adjacency list\n";
+        for(auto &item:cur_cast->adj_list){
+            // std::cout<<item->id<<std::endl;
+            PRMNode* item_cast = static_cast<PRMNode*>(item);
+            if(!visited[item->id]){
+                double dist=distance(cur->point,item->point);
+                if(item_cast->cost>cur_cast->cost+dist){
+                    item_cast->cost=cur_cast->cost+dist;
+                    // std::cout<<"Updated parent of "<<item_cast->id<<
+                    // " to "<<cur_cast->id<<std::endl;
+                    this->parent_map[item_cast->id]=cur_cast->id;
+                }
+                pq.push(item);
+            }
+        }
+    }
+    if(visited[end]){
+        std::cout<<"Path found\n";
+        int cur=end;
+        while(cur!=0){
+            // std::cout<<"Path "<<cur<<std::endl;
+            result.push_back(cur);
+            cur=this->parent_map[cur];
+        }
+        std::cout<<"start "<<result[result.size()-1]<<" "<<result[0]<<std::endl;
     }
 }
 
-void PRM::backtrack(double*** plan, int* planlength){
+void PRM::backtrack(double*** plan, int* planlength, int start_id, int end_id){
     *plan = NULL;
     *planlength = 0;
     std::vector<NodeId> result;
-    NodeId cur=this->terminal_id;
-    while(cur!=0){
-        std::cout<<this->node_list[cur]->point<<std::endl;
-        result.push_back(cur);
-        cur=this->parent_map[cur];
-    }
+    NodeId cur=start_id;
+    this->dijkstra(start_id, end_id, result);
     int num_samples=(int)result.size();
     *plan = (double**) malloc(num_samples*sizeof(double*));
     int i=0;
@@ -261,11 +254,6 @@ void PRM::backtrack(double*** plan, int* planlength){
         i++;
     }
     *planlength=num_samples;
-    
-    return;
-}
-
-void PRM::random_config(Point& q_rand, std::default_random_engine eng){
     return;
 }
 
@@ -287,50 +275,29 @@ void PRM::plan(double* start,
     this->end=Point(goal,goal+(int)this->D);
     std::cout<<this->forward_kinematics(this->start)<<" Start Position"<<std::endl;
     std::cout<<this->forward_kinematics(this->end)<<" End Position"<<std::endl;
-    
-    // Initialize
-    this->insert(Point(start,start+(int)this->D));
+    Point q_rand(this->D);
     for(int i=0; i<this->episodes; i++){
-        if(!this->is_terminal){
-            Point q_rand(this->D);
-            // double scale=(double)i/this->episodes;
-            // double th=((int)(scale*10)%10)/10.0;
-            // double th=0.1;
-            // if(scale>0.9)th=1;
-            if(explt(exp_eng)>this->exploit_th){
-                for(int i=0; i<this->D; i++)q_rand[i]=u_dist(eng);
-            }
-            else{
-                q_rand=this->end;
-            }
-            // std::cout<<q_rand<<std::endl;
-            signal = this->extend(q_rand);
-        }
-        else{
-            std::cout<<"Terminal condition reached\n"<<i<<
-            " Nodes sampled\n";
-            break;
+        for(int j=0; j<this->D; j++)
+            q_rand[j]=u_dist(eng);
+        if(IsValidArmConfiguration(q_rand, this->D, this->map, 
+                this->x_size, this->y_size)){
+            this->extend(q_rand);
         }
         if(i%1000==0){
             std::cout<<i<<" Nodes sampled\n";
-            std::cout<<"Minimum distance till now is "<<this->min_dist<<std::endl;
-            if(i==this->episodes){
-                std::cout<<"No path found after sampling "<<i<<" nodes\n";
-                break;
-            }
         }
     }
-    if(this->is_terminal){
-        std::cout<<"Path Found!\n";
-        this->backtrack(plan,planlength);
+    std::cout<<"Nodes in graph are "<<this->node_list.size()<<std::endl;
+    int flag_1=this->extend(this->start);
+    int start_id=this->counter;
+    int flag_2=this->extend(this->end);
+    int end_id=this->counter;
+    // find path
+    std::cout<<flag_1<<" "<<flag_2<<std::endl;
+    if(flag_1&&flag_2){
+        std::cout<<"Path found\n";
+        this->backtrack(plan, planlength, start_id, end_id);
     }
-    else{
-        std::cout<<"No Path found\n";
-        this->terminal_id=this->closest_id;
-        this->backtrack(plan,planlength);
-    }
-    log(this->forward_kinematics(this->start),nodes);
-    log(this->forward_kinematics(this->end),nodes);
     nodes.close();
     path.close();
     joints.close();

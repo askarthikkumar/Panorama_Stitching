@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:main.cpp">
-   </FileRef>
-   <FileRef
       location = "group:planner.cpp">
    </FileRef>
    <FileRef
@@ -18,5 +15,11 @@
    </FileRef>
    <FileRef
       location = "group:tree.hpp">
+   </FileRef>
+   <FileRef
+      location = "group:prm.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:prm.hpp">
    </FileRef>
 </Workspace>

@@ -1,0 +1,56 @@
+===============================================================================
+EXTENSION NAME : linecount
+EXTENSION VERSION : 0.1.7
+-------------------------------------------------------------------------------
+count time : 2020-03-14 15:41:18
+count workspace : /Users/stark/Projects/Sampling_Based_Planners
+total files : 44
+total code lines : 3426
+total comment lines : 397
+total blank lines : 224
+
+armplanner.m, code is 2, comment is 1, blank is 1.
+examplestartgoal.txt, code is 2, comment is 0, blank is 0.
+HW2_v0.pdf, code is 156, comment is 129, blank is 2.
+joints.txt, code is 0, comment is 0, blank is 0.
+main.cpp, code is 18, comment is 12, blank is 3.
+map1.txt, code is 50, comment is 0, blank is 0.
+map2.txt, code is 50, comment is 0, blank is 0.
+nodes.txt, code is 0, comment is 0, blank is 0.
+output.txt, code is 542, comment is 0, blank is 0.
+path.txt, code is 0, comment is 0, blank is 0.
+planner.cpp, code is 293, comment is 61, blank is 59.
+planner.mexmaci64, it is a binary file.
+prm.cpp, code is 209, comment is 13, blank is 29.
+prm.hpp, code is 31, comment is 1, blank is 1.
+rrt.cpp, code is 268, comment is 48, blank is 26.
+rrt.hpp, code is 25, comment is 1, blank is 1.
+RRT/RRT.xcodeproj/project.pbxproj, code is 259, comment is 21, blank is 10.
+RRT/RRT.xcodeproj/project.xcworkspace/contents.xcworkspacedata, code is 7, comment is 0, blank is 0.
+RRT/RRT.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist, code is 8, comment is 0, blank is 0.
+RRT/RRT.xcodeproj/project.xcworkspace/xcuserdata/stark.xcuserdatad/UserInterfaceState.xcuserstate, it is a binary file.
+RRT/RRT.xcodeproj/xcuserdata/stark.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist, code is 216, comment is 0, blank is 0.
+RRT/RRT.xcodeproj/xcuserdata/stark.xcuserdatad/xcschemes/xcschememanagement.plist, code is 14, comment is 0, blank is 0.
+rrt_connect.cpp, code is 172, comment is 19, blank is 13.
+rrt_connect.hpp, code is 23, comment is 1, blank is 2.
+runtest.m, code is 18, comment is 4, blank is 5.
+SBM/SBM.xcodeproj/project.pbxproj, code is 255, comment is 21, blank is 10.
+SBM/SBM.xcodeproj/project.xcworkspace/contents.xcworkspacedata, code is 7, comment is 0, blank is 0.
+SBM/SBM.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist, code is 8, comment is 0, blank is 0.
+SBM/SBM.xcodeproj/project.xcworkspace/xcuserdata/stark.xcuserdatad/UserInterfaceState.xcuserstate, it is a binary file.
+SBM/SBM.xcodeproj/xcshareddata/xcschemes/SBM.xcscheme, code is 78, comment is 0, blank is 0.
+SBM/SBM.xcodeproj/xcuserdata/stark.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist, code is 168, comment is 0, blank is 0.
+SBM/SBM.xcodeproj/xcuserdata/stark.xcuserdatad/xcschemes/xcschememanagement.plist, code is 22, comment is 0, blank is 0.
+SBM/SBM/kdtree.cpp, code is 177, comment is 26, blank is 17.
+SBM/SBM/Tree.cpp, code is 1, comment is 7, blank is 1.
+SBM/SBM/Tree.hpp, code is 94, comment is 13, blank is 17.
+SBP.xcworkspace/contents.xcworkspacedata, code is 22, comment is 0, blank is 0.
+SBP.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist, code is 8, comment is 0, blank is 0.
+SBP.xcworkspace/xcshareddata/xcschemes/debug.xcscheme, code is 46, comment is 0, blank is 0.
+SBP.xcworkspace/xcuserdata/stark.xcuserdatad/UserInterfaceState.xcuserstate, it is a binary file.
+SBP.xcworkspace/xcuserdata/stark.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist, code is 29, comment is 0, blank is 0.
+SBP.xcworkspace/xcuserdata/stark.xcuserdatad/xcschemes/xcschememanagement.plist, code is 14, comment is 0, blank is 0.
+test.py, code is 14, comment is 2, blank is 1.
+tree.cpp, code is 72, comment is 8, blank is 13.
+tree.hpp, code is 48, comment is 9, blank is 13.
+===============================================================================

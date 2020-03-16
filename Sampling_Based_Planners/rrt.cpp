@@ -56,21 +56,21 @@ std::ostream& operator << (std::ostream& os, std::vector<T> list){
     return os;
 }
 
-Point operator + (Point A, Point B){
+static Point operator + (Point A, Point B){
     Point res(A.size());
     for(int i=0; i<A.size(); i++)
         res[i]=A[i]+B[i];
     return res;
 }
 
-Point operator - (Point A, Point B){
+static Point operator - (Point A, Point B){
     Point res(A.size());
     for(int i=0; i<A.size(); i++)
         res[i]=A[i]-B[i];
     return res;
 }
 
-Point operator * (double k, Point A){
+static Point operator * (double k, Point A){
     Point res(A.size());
     for(int i=0; i<A.size(); i++)
         res[i]=k*A[i];
@@ -84,7 +84,7 @@ RRT::RRT(unsigned D, double* map, int x_size, int y_size):Tree(D){
     this->x_size=x_size;
     this->y_size=y_size;
     this->episodes=30000;
-    this->term_th=0.01;
+    this->term_th=0.05;
     this->is_terminal=false;
     this->exploit_th=0.15;
     //debug variable initialisations
@@ -301,7 +301,7 @@ void RRT::plan(double* start,
             // double th=0.1;
             // if(scale>0.9)th=1;
             if(explt(exp_eng)>this->exploit_th){
-                for(int i=0; i<this->D; i++)q_rand[i]=u_dist(eng);
+                for(int j=0; j<this->D; j++)q_rand[j]=u_dist(eng);
             }
             else{
                 q_rand=this->end;
