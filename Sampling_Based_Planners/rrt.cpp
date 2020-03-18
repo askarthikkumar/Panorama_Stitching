@@ -79,7 +79,7 @@ static Point operator * (double k, Point A){
 
 RRT::RRT(unsigned D, double* map, int x_size, int y_size):Tree(D){
     this->ext_eps=0.5;
-    this->sf=0.01;
+    this->sf=0.001;
     this->map=map;
     this->x_size=x_size;
     this->y_size=y_size;
@@ -236,7 +236,7 @@ int RRT::extend(const Point &q){
     }
 }
 
-void RRT::backtrack(double*** plan, int* planlength){
+void RRT::backtrack(double*** plan, int* planlength, bool flag){
     *plan = NULL;
     *planlength = 0;
     std::vector<NodeId> result;
@@ -248,6 +248,9 @@ void RRT::backtrack(double*** plan, int* planlength){
     }
     int num_samples=(int)result.size();
     *plan = (double**) malloc(num_samples*sizeof(double*));
+    if(flag){
+        std::reverse(result.begin(), result.end());
+    }
     int i=0;
     for(auto it=result.rbegin(); it!=result.rend(); it++){
         // debug
@@ -272,10 +275,11 @@ void RRT::random_config(Point& q_rand, std::default_random_engine eng){
     return;
 }
 
-void RRT::plan(double* start, 
+bool RRT::plan(double* start, 
             double* goal, 
             double*** plan, 
-            int* planlength){
+            int* planlength,
+            bool reverse){
 
     Point q_near;
     int signal;
@@ -292,6 +296,15 @@ void RRT::plan(double* start,
     std::cout<<this->forward_kinematics(this->end)<<" End Position"<<std::endl;
     
     // Initialize
+    if(!IsValidArmConfiguration(this->start,this->D,map,this->x_size,this->y_size)){
+        std::cout<<"Initial Position is Invalid\n";
+        return false;
+    }
+    if(!IsValidArmConfiguration(this->end,this->D,map,this->x_size,this->y_size)){
+        std::cout<<"Final Position is Invalid\n";
+        return false;
+    }
+
     this->insert(Point(start,start+(int)this->D));
     for(int i=0; i<this->episodes; i++){
         if(!this->is_terminal){
@@ -325,17 +338,17 @@ void RRT::plan(double* start,
     }
     if(this->is_terminal){
         std::cout<<"Path Found!\n";
-        this->backtrack(plan,planlength);
+        this->backtrack(plan,planlength,reverse);
     }
     else{
         std::cout<<"No Path found\n";
         this->terminal_id=this->closest_id;
-        this->backtrack(plan,planlength);
+        this->backtrack(plan,planlength,reverse);
     }
     log(this->forward_kinematics(this->start),nodes);
     log(this->forward_kinematics(this->end),nodes);
     nodes.close();
     path.close();
     joints.close();
-    return;
-};
+    return this->is_terminal;
+}

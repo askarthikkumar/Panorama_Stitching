@@ -360,8 +360,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
 	//you can may be call the corresponding planner function here
 	if (planner_id == RRT_ID)
 	{
-        RRT planner(numofDOFs,map,x_size,y_size);
-        planner.plan(armstart_anglesV_rad,armgoal_anglesV_rad,&plan, &planlength);
+        RRT * planner = new RRT(numofDOFs,map,x_size,y_size);
+        bool found = planner->plan(armstart_anglesV_rad,armgoal_anglesV_rad,&plan, &planlength);
+		if(!found){
+			std::cout<<"No path found trying reverse planning \n";
+			delete planner;
+			for(int i=0; i<(planlength); i++){
+				delete [] (plan)[i];
+			}
+			RRT * planner = new RRT(numofDOFs,map,x_size,y_size);
+        	bool found = planner->plan(armgoal_anglesV_rad,armstart_anglesV_rad,&plan, &planlength, true);
+		}
 	}
 	else if (planner_id == RRTCONNECT_ID)
 	{

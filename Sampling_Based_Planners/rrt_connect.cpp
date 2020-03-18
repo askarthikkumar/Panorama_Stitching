@@ -18,6 +18,9 @@
 #define LINKLENGTH_CELLS 10
 #define LOGGING 0
 
+int IsValidArmConfiguration(std::vector<double> angles, 
+        int numofDOFs, double* map,int x_size, int y_size);
+
 template<typename T>
 std::ostream& operator << (std::ostream& os, std::vector<T> list){
     for(int i=0; i<list.size(); i++){
@@ -77,6 +80,9 @@ void RRTConnect::backtrack(double*** plan, int* planlength){
     NodeId cur=this->terminal_id_st;
     while(cur!=0){
         std::cout<<this->tree_st->node_list[cur]->point<<std::endl;
+        if(!IsValidArmConfiguration(this->tree_st->node_list[cur]->point,this->D,map,this->x_size,this->y_size)){
+            std::cout<<"Traj Position is Invalid\n";
+        }
         result_st.push_back(cur);
         cur=this->tree_st->parent_map[cur];
     }
@@ -85,6 +91,9 @@ void RRTConnect::backtrack(double*** plan, int* planlength){
     while(cur!=0){
         // std::cout<<cur<<std::endl;
         std::cout<<this->tree_gl->node_list[cur]->point<<std::endl;
+        if(!IsValidArmConfiguration(this->tree_gl->node_list[cur]->point,this->D,map,this->x_size,this->y_size)){
+            std::cout<<"Traj Position is Invalid\n";
+        }
         result_gl.push_back(cur);
         cur=this->tree_gl->parent_map[cur];
     }
@@ -134,6 +143,14 @@ void RRTConnect::plan(double* start,
     
     this->start=Point(start,start+(int)this->D);
     this->end=Point(goal,goal+(int)this->D);
+    if(!IsValidArmConfiguration(this->start,this->D,map,this->x_size,this->y_size)){
+        std::cout<<"Initial Position is Invalid\n";
+        return;
+    }
+    if(!IsValidArmConfiguration(this->end,this->D,map,this->x_size,this->y_size)){
+        std::cout<<"Final Position is Invalid\n";
+        return;
+    }
     std::cout<<this->tree_st->forward_kinematics(this->start)<<" Start Position"<<std::endl;
     std::cout<<this->tree_st->forward_kinematics(this->end)<<" End Position"<<std::endl;
     // Initialize

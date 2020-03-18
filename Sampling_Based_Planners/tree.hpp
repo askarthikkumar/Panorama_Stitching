@@ -62,6 +62,7 @@ public:
     std::unordered_map<NodeId, NodeId> parent_map;
     std::unordered_map<NodeId, Node*> node_list;
     Tree(unsigned D);
+    ~Tree();
     virtual NodeId insert(const Point &pt, NodeId parent=0)=0;
     Node* get_node(NodeId id);
     std::vector<Node*> get_nearest_nodes(const Point &pt, int k=1);

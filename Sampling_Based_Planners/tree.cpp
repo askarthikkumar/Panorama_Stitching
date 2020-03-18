@@ -90,3 +90,10 @@ std::vector<Node*> Tree::get_nearest_nodes(const Point &pt, int k){
         std::vector<Node*> result(bp.bpq->begin(), bp.bpq->end());
         return result;
 }
+
+Tree::~Tree(){
+    std::cout<<"Tree Destructor called\n";
+    for(auto& iter:this->node_list){
+        delete iter.second;
+    }
+}
